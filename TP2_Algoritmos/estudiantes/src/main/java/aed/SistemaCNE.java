@@ -96,12 +96,7 @@ public class SistemaCNE {
     }
 
     public String distritoDeMesa(int idMesa) {
-        
-        if (indiceDistritoMesa(idMesa) >= this.distritos.length){
-            return "TU VBIEJAS";
-        }
         return this.distritos[indiceDistritoMesa(idMesa)];
-
     }
 
     private int indiceDistritoMesa(int idMesa) {
