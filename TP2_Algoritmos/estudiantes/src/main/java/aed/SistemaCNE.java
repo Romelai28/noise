@@ -104,26 +104,20 @@ public class SistemaCNE {
     }
 
     private int indiceDistritoMesa(int idMesa) {
-        return binarySearchEspecial(this.ultimaMesaPorDistrito, idMesa);
-    }
-
-    public int binarySearchEspecial(int[] arr, int elem){
-        // Busca con busqueda binaria el elemento en la array, si lo encuentra devuelve el indice.
-        // Si no lo encuentra, devuelve el indice del elemento mayor al buscado más cercano que pertenece a la array.
+        // Binary Search adaptada para este problema por su particularidad de los indices que devuelve.
         // arr ordenada crecientemente.
         // Por el requiere sabemos que elem pertenece entre 0 y arr[arr.length - 1]
-        // IMPORTANTE, NO MODULARIZAR ESTO, ES HORRIBLE
         int izq = -1;  // Todos los elementos a la izquierda de izq incluido son < al elemento
-        int der = arr.length;  // Todos los elementos a la derecha de der incluido son >= al elemento
+        int der = this.ultimaMesaPorDistrito.length;  // Todos los elementos a la derecha de der incluido son >= al elemento
         while (der-izq > 1) {  // El rango activo es [izq+1 hasta der-1]
             int medio = (izq + der) / 2;
-            if (arr[medio] < elem){
+            if (this.ultimaMesaPorDistrito[medio] < idMesa){
                 izq = medio;
             } else {
                 der = medio;
             }
         }
-        if (arr[der] == elem){  // Notar que sin el requiere se rompe aca!
+        if (this.ultimaMesaPorDistrito[der] == idMesa){  // Notar que sin el requiere se rompe aca!
             return der + 1;
         } else {
             return der;
