@@ -37,23 +37,26 @@ public class SistemaCNE {
     public class Nodo implements Comparable<Nodo> {
         private int votos;
         private int id;
+        private int votosCocientizados;
         private int cociente;
 
         // Crear Constructor del nodo
         Nodo(int votos, int id) {
             this.votos = votos;
             this.id = id;
+            this.votosCocientizados = this.votos;
             this.cociente = 1;
         }
 
         @Override
         public int compareTo(Nodo otroNodo) {
-            return (this.votos/this.cociente) - (otroNodo.votos()/otroNodo.cociente());  // REMINDER PARA AGREGAR EL CRITERIO DEL QUE TENGA MENOS COCIENTE. No es necesario
+            return this.votosCocientizados - otroNodo.votosCocientizados();  // REMINDER PARA AGREGAR EL CRITERIO DEL QUE TENGA MENOS COCIENTE. No es necesario
         }
 
         public int votos() {return this.votos;}
         public int id() {return this.id;}
         public int cociente() {return this.cociente;}
+        public int votosCocientizados() {return this.votosCocientizados;}
     }
 
     public SistemaCNE(String[] nombresDistritos, int[] diputadosPorDistrito, String[] nombresPartidos, int[] ultimasMesasDistritos) {
@@ -177,6 +180,7 @@ public class SistemaCNE {
             for(int i=0; i < this.diputadosPorDistrito[idDistrito]; i++){
                 Nodo ganaBanca = this.heapDiputados[idDistrito].desencolar();
                 ganaBanca.cociente += 1;
+                ganaBanca.votosCocientizados = ganaBanca.votos / ganaBanca.cociente;  // Si le saco las divisiones el ultimo test pasa a tardar 2,5????? ahora tarda 4,0.
                 this.memoBancasPorDistrito[idDistrito][ganaBanca.id] += 1;
                 this.heapDiputados[idDistrito].encolar(ganaBanca);
             }
