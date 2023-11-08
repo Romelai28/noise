@@ -57,29 +57,30 @@ public class SistemaCNE {
     }
 
     public SistemaCNE(String[] nombresDistritos, int[] diputadosPorDistrito, String[] nombresPartidos, int[] ultimasMesasDistritos) {
-        this.partidos = nombresPartidos;  // !REMINDER: Usar un metodo de copiado  de arrs para evitar alliasing
-        this.distritos = nombresDistritos;
-        this.diputadosPorDistrito = diputadosPorDistrito;
-        this.ultimaMesaPorDistrito = ultimasMesasDistritos;
+        // !REMINDER: Usar un metodo de copiado  de arrs para evitar alliasing PERO SE IRIA EN COMPLEJODAD????
+        this.partidos = nombresPartidos;  // O(1)
+        this.distritos = nombresDistritos;  // O(1)
+        this.diputadosPorDistrito = diputadosPorDistrito;  // O(1)
+        this.ultimaMesaPorDistrito = ultimasMesasDistritos;  // O(1)
         // Java inicializa las arr de int con ceros y las arr de boolean con false.
-        this.votosPresidenciales = new int[partidos.length];
-        this.votosDiputados = new int[distritos.length][partidos.length];
-        this.memoBancasPorDistrito = new int[distritos.length][partidos.length];  // Contiene al blanco pero no lo utiliza.
-        this.memoEsValido = new boolean[distritos.length];
-        this.votosTotalesPresidenciales = 0;
-        this.votosTotalesDiputados = 0;
-        this.primero = 0;
-        this.segundo = 1;  // Supongo que hay al menos 2 partidos.
+        this.votosPresidenciales = new int[partidos.length];  // O(P)
+        this.votosDiputados = new int[distritos.length][partidos.length]; // O(D*P)
+        this.memoBancasPorDistrito = new int[distritos.length][partidos.length-1];  // O(D*P)  // No contiene a los blancos.
+        this.memoEsValido = new boolean[distritos.length];  // O(D)
+        this.votosTotalesPresidenciales = 0;  // O(1)
+        this.votosTotalesDiputados = 0;  // O(1)
+        this.primero = 0;  // O(1)
+        this.segundo = 1;  // O (1)  // Supongo que hay al menos 2 partidos.
 
-        this.heapDiputados = new PriorityQueueAcotada[this.distritos.length];
-        for (int i = 0; i < this.distritos.length; i++) {
-            PriorityQueueAcotada<Nodo> pqDiputadosDistrito = new PriorityQueueAcotada<Nodo>(this.partidos.length-1);
-            Nodo[] arrDeNodos = new Nodo[this.partidos.length - 1];  // No considera votos en blanco.
-            for (int j = 0; j < this.partidos.length - 1; j++){
-                arrDeNodos[j] = new Nodo(0, j);
-            }
-            pqDiputadosDistrito.array2Heap(arrDeNodos);
-            this.heapDiputados[i] = pqDiputadosDistrito;
+        this.heapDiputados = new PriorityQueueAcotada[this.distritos.length];  //O(D)
+        Nodo[] arrDeNodos = new Nodo[this.partidos.length - 1];  // O(P)  // No considera votos en blanco.
+        for (int j = 0; j < this.partidos.length - 1; j++){  // Ejecuta P veces un cuerpo O(1) -> queda O(P)
+            arrDeNodos[j] = new Nodo(0, j);  // O(1) -cuerpo-
+        }
+        for (int i = 0; i < this.distritos.length; i++) {  // Ejecuta D veces un cuerpo de O(P) -> queda O(D*P)
+            PriorityQueueAcotada<Nodo> pqDiputadosDistrito = new PriorityQueueAcotada<Nodo>(this.partidos.length-1);  //O(P) -cuerpo-
+            pqDiputadosDistrito.array2Heap(arrDeNodos);  // O(arrDeNodos) = O(P) -cuerpo-
+            this.heapDiputados[i] = pqDiputadosDistrito;  // O(1) -cuerpo-
         }
     }
 
@@ -134,7 +135,7 @@ public class SistemaCNE {
             this.votosTotalesPresidenciales += actaMesa[i].votosPresidente();
             this.votosDiputados[indiceDistritoMesa][i] += actaMesa[i].votosDiputados();
             this.votosTotalesDiputados += actaMesa[i].votosDiputados();
-            this.memoBancasPorDistrito[indiceDistritoMesa][i] = 0;
+            if (i!=this.partidos.length-1) {this.memoBancasPorDistrito[indiceDistritoMesa][i] = 0;}
         }
         actualizarPrimeroSegundo();
         memoEsValido[indiceDistritoMesa] = false;
@@ -206,10 +207,11 @@ public class SistemaCNE {
     // }
 
     public boolean hayBallotage(){
-        return !(porcentajeVotos(this.primero) >= 45 || (porcentajeVotos(this.primero) >= 40 && porcentajeVotos(this.primero) - porcentajeVotos(this.segundo) > 10));
+        return !(porcentajeVotosPresidenciales(this.primero) >= 45 || (porcentajeVotosPresidenciales(this.primero) >= 40 && porcentajeVotosPresidenciales(this.primero) - porcentajeVotosPresidenciales(this.segundo) > 10));
     }
 
-    private float porcentajeVotos(int idPartido){
+    // Cambiar nombres más cortos o directamente unificarlas (tenes más parametros, feo pero es una función menos.)
+    private float porcentajeVotosPresidenciales(int idPartido){
         return (this.votosPresidenciales(idPartido) * 100) / this.votosTotalesPresidenciales;
     }
     
