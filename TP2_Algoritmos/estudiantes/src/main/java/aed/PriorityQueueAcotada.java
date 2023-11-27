@@ -101,5 +101,9 @@ public class PriorityQueueAcotada<T extends Comparable<T>> {
         }
         return nueva_arr;
     }
+
+    public boolean estaVacio(){
+        return this.tamaño == 0;
+    }
     
 }
